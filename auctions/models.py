@@ -25,7 +25,7 @@ class Listing(models.Model):
 
 class Bid(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    listing_id = models.ForeignKey('Listing', on_delete=models.CASCADE, related_name='listingBids')
+    # listing_id = models.ForeignKey('Listing', on_delete=models.CASCADE, related_name='listingBids')
     amount = models.DecimalField(max_digits=8, decimal_places=2)
     user_id = models.ForeignKey('User', on_delete=models.CASCADE, related_name='userBids')
     def __str__(self):

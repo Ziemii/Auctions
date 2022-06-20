@@ -3,6 +3,7 @@ from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
+from .forms import ListingForm
 
 from .models import User, Listing, Bid, Category, Comment
 
@@ -67,7 +68,9 @@ def register(request):
 
 
 def create(request):
-    return render(request, "auctions/index.html")
+    return render(request, "auctions/create.html", {
+        "listing_form" : ListingForm()
+    })
 
 def listing(request):
     return render(request, "auctions/index.html")

@@ -1,5 +1,6 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from django.forms import ModelForm
 import uuid
 
 
@@ -16,8 +17,10 @@ class User(AbstractUser):
 class Listing(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     title = models.CharField(max_length=25)
+    image_url = models.URLField(blank=True, max_length=256)
     description = models.TextField()
     user = models.ForeignKey('User', on_delete=models.CASCADE, related_name='userListings')
+    initial_bid = models.DecimalField(max_digits=8, decimal_places=2)
     bid = models.ForeignKey('Bid', on_delete=models.SET_NULL, null=True)
     category = models.ForeignKey('Category', on_delete=models.SET('Other'), related_name='categoryListings')
     def __str__(self):
@@ -45,4 +48,4 @@ class Category(models.Model):
     category = models.CharField(max_length=15)
     def __str__(self):
         return f"{self.category}"
-    
+

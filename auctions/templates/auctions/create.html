@@ -7,9 +7,13 @@
    {% for field in listing_form %}
    <div class="fieldWrapper">
       {{ field.errors }}
-      {{ field.label_tag }}  <br>{{ field }}
+      {{ field.label_tag }}
+      <br>
+      {{ field }}
   </div>
    {% endfor %}
-   <input type="submit" value="Submit">
+   <br>
+   
+   <input type="submit" class='btn btn-primary' value="Submit">
  </form> 
 {% endblock %}

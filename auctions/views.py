@@ -68,11 +68,32 @@ def register(request):
 
 
 def create(request):
-    return render(request, "auctions/create.html", {
-        "listing_form" : ListingForm()
-    })
+    if request.method == "POST":
+        f = ListingForm(request.POST)
+        if f.is_valid():
+            l = Listing(
+                title=f.cleaned_data['title'],
+                image_url=f.cleaned_data['image_url'],
+                user=request.user,
+                description=f.cleaned_data['description'],
+                initial_bid=f.cleaned_data['initial_bid'],
+                category=f.cleaned_data['category']
+                )
+            l.save()
+            #[FIXME:]
+        #     print('saved')
+        #     pass
+        # else:
+            # print('invalid')
+            print(f"CLEANED DATA {f.cleaned_data}")
+        pass
+    else: 
+        return render(request, "auctions/create.html", {
+            "listing_form" : ListingForm()
+        })
 
 def listing(request):
+    listing_id = request.GET['id']
     return render(request, "auctions/index.html")
 
 def watchlist(request):

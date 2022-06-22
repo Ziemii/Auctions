@@ -21,18 +21,18 @@ class Listing(models.Model):
     description = models.TextField()
     user = models.ForeignKey('User', on_delete=models.CASCADE, related_name='userListings')
     initial_bid = models.DecimalField(max_digits=8, decimal_places=2)
-    bid = models.ForeignKey('Bid', on_delete=models.SET_NULL, null=True)
+    # bid = models.ForeignKey('Bid', on_delete=models.SET_NULL, null=True)
     category = models.ForeignKey('Category', on_delete=models.SET('Other'), related_name='categoryListings')
     def __str__(self):
         return f"{self.title}"
 
 class Bid(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    # listing_id = models.ForeignKey('Listing', on_delete=models.CASCADE, related_name='listingBids')
+    listing_id = models.ForeignKey('Listing', on_delete=models.CASCADE, related_name='listingBids')
     amount = models.DecimalField(max_digits=8, decimal_places=2)
     user_id = models.ForeignKey('User', on_delete=models.CASCADE, related_name='userBids')
     def __str__(self):
-        return f"{self.amount}"
+        return f"{self.user_id}"
 
 class Comment(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)

@@ -5,7 +5,7 @@
     {%if Listings %}
     <ul>
         {%for listing in Listings%}
-            <li>{{listing.description}}</li>
+            <a href= {{ listing.id }} ><li>{{listing.description}}</li></a>
         {% endfor %}
     </ul>
     {%else%}

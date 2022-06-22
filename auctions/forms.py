@@ -17,7 +17,7 @@ class ListingForm(ModelForm):
             'image_url': URLInput(attrs={'class':'form-control'}),
             'description': Textarea(attrs={'cols': 80, 'rows': 20, 'class':'form-control'}),
             'category': CategorySelect(attrs={'class': 'form-control'}),
-            # 'initial_bid': NumberInput(attrs={'class': 'form-control w-50'})
+            'initial_bid': NumberInput(attrs={'class': 'form-control w-25', 'placeholder': '0.00$'})
         }
 
 class BidForm(ModelForm):

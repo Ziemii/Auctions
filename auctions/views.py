@@ -1,9 +1,10 @@
 from django.contrib.auth import authenticate, login, logout
 from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import render
+from django.shortcuts import redirect, render
 from django.urls import reverse
 from .forms import ListingForm
+from django.db.models.signals import post_save
 
 from .models import User, Listing, Bid, Category, Comment
 
@@ -80,21 +81,35 @@ def create(request):
                 category=f.cleaned_data['category']
                 )
             l.save()
-            #[FIXME:]
-        #     print('saved')
-        #     pass
-        # else:
-            # print('invalid')
-            print(f"CLEANED DATA {f.cleaned_data}")
-        pass
+            try:
+               l = Listing.objects.get(title=f.cleaned_data['title'])
+            except (Listing.DoesNotExist, Listing.MultipleObjectsReturned):
+                return render(request, "auctions/error.html",{
+                    "error" : "Error occured, please try again."
+                })
+        return redirect(f"/{l.id}")
     else: 
         return render(request, "auctions/create.html", {
             "listing_form" : ListingForm()
         })
 
-def listing(request):
-    listing_id = request.GET['id']
-    return render(request, "auctions/index.html")
+def listing(request, id):
+    listing = Listing.objects.get(pk = id)
+
+    bids = Bid.objects.all().filter(listing_id = id)
+    nOfBids =  Bid.objects.all().filter(listing_id = id).count()
+    highestBid = bids.order_by('amount')[0]
+    if(highestBid.user_id == request.user):
+        winning = True
+    else:
+        winning = False
+    return render(request, "auctions/listing.html",{
+        'listing': listing,
+        'nOfBids' : nOfBids,
+        'highestBid' : highestBid,
+        'winning':winning
+
+    })
 
 def watchlist(request):
     return render(request, "auctions/index.html")

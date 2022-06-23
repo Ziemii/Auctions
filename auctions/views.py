@@ -1,3 +1,4 @@
+from unicodedata import name
 from django.contrib.auth import authenticate, login, logout
 from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
@@ -77,7 +78,7 @@ def create(request):
                 image_url=f.cleaned_data['image_url'],
                 user=request.user,
                 description=f.cleaned_data['description'],
-                initial_bid=f.cleaned_data['initial_bid'],
+                current_bid=f.cleaned_data['current_bid'],
                 category=f.cleaned_data['category']
                 )
             l.save()
@@ -95,14 +96,15 @@ def create(request):
 
 def listing(request, id):
     listing = Listing.objects.get(pk = id)
-
+    highestBid = None
+    winning = False
     bids = Bid.objects.all().filter(listing_id = id)
     nOfBids =  Bid.objects.all().filter(listing_id = id).count()
-    highestBid = bids.order_by('-amount')[0]
-    if(highestBid.user_id == request.user):
-        winning = True
-    else:
-        winning = False
+    if(bids):
+        highestBid = bids.order_by('-amount')[0]
+        if(highestBid.user_id == request.user):
+            winning = True
+        
     return render(request, "auctions/listing.html",{
         'listing': listing,
         'nOfBids' : nOfBids,
@@ -116,6 +118,11 @@ def user(request, id):
         'Listings' : Listing.objects.all().filter(user = id),
         'username' : User.objects.get(pk = id)
     })
+def category(request, category):
+    return render(request, "auctions/category.html", {
+        'Listings' : Listing.objects.all().filter(category = Category.objects.get(category = category)),
+        'category' : category
+    })
 
 def bid(request):
     if request.method == "GET":
@@ -126,6 +133,8 @@ def bid(request):
     try:
         bid = Bid(listing_id = listing, user_id = user, amount = bid_amount)
         bid.save()
+        listing.highest_bid = bid_amount
+        listing.save()
     except Exception:
         return render(request, "auctions/error.html", {
             'error' : "Error occured, please try again."
@@ -136,4 +145,6 @@ def watchlist(request):
     return render(request, "auctions/index.html")
 
 def categories(request):
-    return render(request, "auctions/index.html")
+    return render(request, "auctions/categories.html", {
+        'categories' : Category.objects.all(),
+    })

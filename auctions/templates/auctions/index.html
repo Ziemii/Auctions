@@ -3,11 +3,21 @@
 {% block body %}
     <h2>Active Listings</h2>
     {%if Listings %}
-    <ul>
-        {%for listing in Listings%}
-            <a href= {{ listing.id }} ><li>{{listing.description}}</li></a>
-        {% endfor %}
-    </ul>
+                {%for listing in Listings%}
+                    <a href={{listing.id}} class="list-group-item list-group-item-action">
+                        <div class="d-flex flex-row align-items-center  m-2">
+                            <div class="p-2 w-25">
+                            <img src='{{listing.image_url}}' class='img-fluid ' alt=''>
+                            </div>
+                            <div class="p-2 ml-2">
+                                <h5 class="mb-1">{{listing.title}}</h5>
+                                Price: ${{listing.current_bid}}
+                            </div>
+                            
+                        </div>
+                    </a>
+                    <a href= {{ listing.id }} ><li>{{listing.description}}</li></a>
+                {% endfor %}
     {%else%}
         <h3>No listings</h3>
     {%endif%}

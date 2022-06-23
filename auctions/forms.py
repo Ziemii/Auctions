@@ -11,13 +11,13 @@ class CategorySelect(Select):
 class ListingForm(ModelForm):
     class Meta:
         model = Listing
-        fields = ['title', 'image_url', 'description', 'category', 'initial_bid']
+        fields = ['title', 'image_url', 'description', 'category', 'current_bid']
         widgets = {
             'title' : TextInput(attrs={'class':'form-control'}),
             'image_url': URLInput(attrs={'class':'form-control'}),
             'description': Textarea(attrs={'cols': 80, 'rows': 20, 'class':'form-control'}),
             'category': CategorySelect(attrs={'class': 'form-control'}),
-            'initial_bid': NumberInput(attrs={'class': 'form-control w-25', 'placeholder': '0.00$'})
+            'current_bid': NumberInput(attrs={'class': 'form-control w-25', 'placeholder': '0.00$'})
         }
 
 class BidForm(ModelForm):

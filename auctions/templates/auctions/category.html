@@ -1,7 +1,7 @@
 {% extends "auctions/layout.html" %}
 
 {% block body %}
-    <h2>User "{{username}}" active listings:</h2>
+    <h2>"{{category}}" category  active listings:</h2>
     {%if Listings %}
     <ul>
         {%for listing in Listings%}

@@ -10,7 +10,7 @@
     {%if user.is_authenticated %}
     <div class="row align-items-start">
         <div class="col">
-            <span class="btn btn-secondary btn-sm">Watchlist</span>
+            <a href="#"><span class="badge badge-secondary">Watchlist</span></a>
         </div>
     </div>
     {%endif%}
@@ -18,7 +18,7 @@
         <div class="col">
             {%if not listing.image_url%}
             {%else%}
-            <img src="{{listing.image_url}}" class="img-fluid" alt="Listing image">
+            <img src="{{listing.image_url}}" class="img-fluid w-50" alt="Listing image">
             {%endif%}
         </div>
     </div>
@@ -29,7 +29,11 @@
     </div>
     <div class="row align-items-start">
         <div class="col">
+            {% if highestBid %}
             <h1>${{highestBid.amount}}</h1>
+            {% else %}
+            <h1>${{listing.current_bid}}</h1>
+            {% endif %}
         </div>
     </div>
      <div class="row align-items-start">
@@ -58,7 +62,7 @@
             <h3>Details:</h3>
             <ul>
                 <li>listed by: <a href={% url 'user' id=listing.user.id %}>{{listing.user}}</a></li>
-                <li>category: {{listing.category}}</li>
+                <li>category: <a href={% url 'category' category=listing.category %}>{{listing.category}}</a></li>
             </ul>
         </div>
     </div>

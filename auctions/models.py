@@ -20,11 +20,10 @@ class Listing(models.Model):
     image_url = models.URLField(blank=True, max_length=256)
     description = models.TextField()
     user = models.ForeignKey('User', on_delete=models.CASCADE, related_name='userListings')
-    initial_bid = models.DecimalField(max_digits=8, decimal_places=2)
-    # bid = models.ForeignKey('Bid', on_delete=models.SET_NULL, null=True)
-    #[FIXME:]
+    # initial_bid = models.DecimalField(max_digits=8, decimal_places=2)
+    current_bid = models.DecimalField(max_digits=8, decimal_places=2)
     category = models.ForeignKey('Category', on_delete=models.SET('Other'), related_name='categoryListings')
-    winner = models.ForeignKey('User', on_delete=models.SET('None'), blank=True, default=0)
+    winner = models.ForeignKey('User', on_delete=models.SET(None), null=True, blank=True)
     def __str__(self):
         return f"{self.title}"
 

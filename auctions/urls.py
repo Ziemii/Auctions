@@ -11,4 +11,6 @@ urlpatterns = [
     path("<uuid:id>", views.listing, name="listing"),
     path("watchlist", views.watchlist, name="watchlist"),
     path("categories", views.categories, name="categories"),
+    path("user/<int:id>", views.user, name="user"),
+    path("bid", views.bid, name="bid")
 ]

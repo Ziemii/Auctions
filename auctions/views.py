@@ -98,7 +98,7 @@ def listing(request, id):
 
     bids = Bid.objects.all().filter(listing_id = id)
     nOfBids =  Bid.objects.all().filter(listing_id = id).count()
-    highestBid = bids.order_by('amount')[0]
+    highestBid = bids.order_by('-amount')[0]
     if(highestBid.user_id == request.user):
         winning = True
     else:
@@ -110,6 +110,27 @@ def listing(request, id):
         'winning':winning
 
     })
+
+def user(request, id):
+    return render(request, "auctions/user.html", {
+        'Listings' : Listing.objects.all().filter(user = id),
+        'username' : User.objects.get(pk = id)
+    })
+
+def bid(request):
+    if request.method == "GET":
+        return redirect("/")
+    user =  request.user
+    bid_amount = request.POST['amount']
+    listing = Listing.objects.get(id = request.POST['listing'])
+    try:
+        bid = Bid(listing_id = listing, user_id = user, amount = bid_amount)
+        bid.save()
+    except Exception:
+        return render(request, "auctions/error.html", {
+            'error' : "Error occured, please try again."
+        })
+    return redirect(f"/{listing.id}")
 
 def watchlist(request):
     return render(request, "auctions/index.html")

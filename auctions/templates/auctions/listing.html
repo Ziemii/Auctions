@@ -7,11 +7,13 @@
             <h1>Listing: {{listing.title}}</h1>
         </div>
     </div>
+    {%if user.is_authenticated %}
     <div class="row align-items-start">
         <div class="col">
-            <span class="btn btn-primary btn-sm">Wishlist</span>
+            <span class="btn btn-secondary btn-sm">Watchlist</span>
         </div>
     </div>
+    {%endif%}
     <div class="row align-items-start">
         <div class="col">
             {%if not listing.image_url%}
@@ -38,26 +40,35 @@
     </div>
     <div class="row align-items-start">
         <div class="col">
-            <form id="bid_form" action='/bid'>
-            <input class='form-control' placeholder='Bid' type="number" min="0.00" max="10000.00" step="0.01" required/>
+            <form id="bid_form" action='/bid' method="post">
+                {% csrf_token %}
+                <input name="listing" type="hidden" value="{{listing.id}}"></input>
+                <input type="hidden" value={{user.id.id}} name="username" />
+                <input name="amount" class='form-control' placeholder='Bid' type="number" min="0.00" max="10000.00" step="0.01" required/>
             <from>
         </div>
     </div>
     <div class="row align-items-start mt-2">
         <div class="col">
-            <button class='btn btn-primary' form="bid_form" type="submit">Bid</button>
+            <button class='btn btn-primary' form="bid_form" type="submit">Place Bid</button>
         </div>
     </div>
     <div class="row align-items-start mt-2">
         <div class="col">
             <h3>Details:</h3>
             <ul>
-                <li>listed by: {{listing.user}}</li>
+                <li>listed by: <a href={% url 'user' id=listing.user.id %}>{{listing.user}}</a></li>
                 <li>category: {{listing.category}}</li>
             </ul>
         </div>
     </div>
-    
+    {%if user.id == listing.user.id %}
+    <div class="row align-items-start mt-2">
+        <div class="col">
+            <button class="btn btn-danger">Close auction</button>
+        </div>
+    </div>
+    {%endif%}
    
 
   

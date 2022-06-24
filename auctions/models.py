@@ -4,14 +4,6 @@ from django.forms import ModelForm
 import uuid
 
 
-class User(AbstractUser):
-    pass
-    # id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    # login = models.CharField(max_length=64, unique=True)
-    # password = models.CharField(max_length=256)
-    # email = models.EmailField()
-    # def __str__(self):
-    #     return f"{self.login}"
 
 
 class Listing(models.Model):
@@ -20,12 +12,15 @@ class Listing(models.Model):
     image_url = models.URLField(blank=True, max_length=256)
     description = models.TextField()
     user = models.ForeignKey('User', on_delete=models.CASCADE, related_name='userListings')
-    # initial_bid = models.DecimalField(max_digits=8, decimal_places=2)
     current_bid = models.DecimalField(max_digits=8, decimal_places=2)
     category = models.ForeignKey('Category', on_delete=models.SET('Other'), related_name='categoryListings')
     winner = models.ForeignKey('User', on_delete=models.SET(None), null=True, blank=True)
+    datetime = models.DateTimeField(auto_now_add=True)
     def __str__(self):
         return f"{self.title}"
+
+class User(AbstractUser):
+    pass
 
 class Bid(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -50,3 +45,10 @@ class Category(models.Model):
     def __str__(self):
         return f"{self.category}"
 
+class Watchlist(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.ForeignKey('User', on_delete=models.CASCADE, related_name='user_watchlist')
+    listing = models.ForeignKey('Listing', on_delete=models.CASCADE)
+    data = models.CharField(max_length=20)
+    def __str__(self):
+        return f"{self.id}"

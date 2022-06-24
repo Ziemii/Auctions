@@ -14,4 +14,5 @@ urlpatterns = [
     path("user/<int:id>", views.user, name="user"),
     path("bid", views.bid, name="bid"),
     path("category/<str:category>", views.category, name="category"),
+    path("watchlist", views.watchlist, name="watchlist"),
 ]

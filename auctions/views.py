@@ -7,7 +7,7 @@ from django.urls import reverse
 from .forms import ListingForm
 from django.db.models.signals import post_save
 
-from .models import User, Listing, Bid, Category, Comment
+from .models import User, Listing, Bid, Category, Comment, Watchlist
 
 
 def index(request):
@@ -141,10 +141,31 @@ def bid(request):
         })
     return redirect(f"/{listing.id}")
 
-def watchlist(request):
-    return render(request, "auctions/index.html")
 
 def categories(request):
     return render(request, "auctions/categories.html", {
         'categories' : Category.objects.all(),
     })
+
+def watchlist(request):
+    if request.method == "GET":
+        watchlist = Watchlist.objects.all().filter(user = request.user.id)
+        return render(request, "auctions/watchlist.html", {
+        'watchlist' : watchlist,
+    })
+    # try:
+    user = User.objects.get(pk = request.user.id) 
+    listing = Listing.objects.get(id = request.POST['listing'])
+    watchlist = Watchlist(user=user, listing=listing)
+    watchlist.save()
+    # except Exception:
+    #     return render(request, "auctions/error.html", {
+    #         'error' : "Error occured, please try again."
+    #     })
+    #[FIXME:]
+    watchlist = Watchlist.objects.all().filter(user = request.user.id)
+    return render(request, "auctions/watchlist.html", {
+        'watchlist' : watchlist,
+    })
+    return render(request, '')
+    return redirect(f"/{listing.id}")

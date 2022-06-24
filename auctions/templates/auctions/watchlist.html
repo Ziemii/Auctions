@@ -1,5 +1,37 @@
 {% extends "auctions/layout.html" %}
 
 {% block body %}
-   
+<h2>Watchlist</h2>
+{%if watchlist %}
+            {%for listing in watchlist%}
+                <a href={{listing.id}} class="list-group-item list-group-item-action">
+                    <div class="d-flex flex-row align-items-center  m-2">
+                        <div class="p-2 w-25">
+                        <img src='{{listing.image_url}}' class='img-fluid ' alt=''>
+                        </div>
+                        <div class="p-2 ml-2">
+                            <h3 class="mb-1">{{listing.title}}</h3>
+                            <div class="row align-items-start m-1">
+                                <div class="col">
+                                    <span class="font-weight-bold">Price:</span> ${{listing.current_bid}}
+                                </div>
+                            </div>
+                            <div class="row align-items-start m-1">
+                                <div class="col">
+                                   {{listing.description}}
+                                </div>
+                            </div>
+                            <div class="row align-items-start m-1">
+                                <div class="col font-weight-lighter">
+                                    <small>Created: {{listing.datetime}}</small>
+                                </div>
+                            </div>
+                        </div>
+                        
+                    </div>
+                </a>
+            {% endfor %}
+{%else%}
+    <h3>No listings</h3>
+{%endif%}
 {% endblock %}

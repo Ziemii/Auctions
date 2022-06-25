@@ -27,6 +27,7 @@ class Bid(models.Model):
     listing_id = models.ForeignKey('Listing', on_delete=models.CASCADE, related_name='listingBids')
     amount = models.DecimalField(max_digits=8, decimal_places=2)
     user_id = models.ForeignKey('User', on_delete=models.CASCADE, related_name='userBids')
+    datetime = models.DateTimeField(auto_now_add=True)
     def __str__(self):
         return f"{self.user_id}"
 
@@ -50,5 +51,9 @@ class Watchlist(models.Model):
     user = models.ForeignKey('User', on_delete=models.CASCADE, related_name='user_watchlist')
     listing = models.ForeignKey('Listing', on_delete=models.CASCADE)
     data = models.CharField(max_length=20)
+
+    class Meta:
+        unique_together = ('user', 'listing')
+
     def __str__(self):
-        return f"{self.id}"
+        return f"{self.listing}"

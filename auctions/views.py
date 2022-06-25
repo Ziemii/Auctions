@@ -1,3 +1,4 @@
+import sqlite3
 from unicodedata import name
 from django.contrib.auth import authenticate, login, logout
 from django.db import IntegrityError
@@ -98,18 +99,28 @@ def listing(request, id):
     listing = Listing.objects.get(pk = id)
     highestBid = None
     winning = False
+    step = 0.01
+    on_watchlist = False
     bids = Bid.objects.all().filter(listing_id = id)
     nOfBids =  Bid.objects.all().filter(listing_id = id).count()
+    print(f"ANON {request.user}")
+    if request.user.is_authenticated:
+        print(f"IN ANON {request.user}")
+        on_watchlist = Watchlist.objects.filter(user = request.user, listing = listing)
+    
     if(bids):
         highestBid = bids.order_by('-amount')[0]
         if(highestBid.user_id == request.user):
             winning = True
-        
+    
     return render(request, "auctions/listing.html",{
         'listing': listing,
         'nOfBids' : nOfBids,
         'highestBid' : highestBid,
-        'winning':winning
+        'winning':winning,
+        'on_watchlist' : on_watchlist,
+        'step' : step,
+        'minimum' : float(listing.current_bid) + step,
 
     })
 
@@ -133,7 +144,7 @@ def bid(request):
     try:
         bid = Bid(listing_id = listing, user_id = user, amount = bid_amount)
         bid.save()
-        listing.highest_bid = bid_amount
+        listing.current_bid = bid_amount
         listing.save()
     except Exception:
         return render(request, "auctions/error.html", {
@@ -153,19 +164,20 @@ def watchlist(request):
         return render(request, "auctions/watchlist.html", {
         'watchlist' : watchlist,
     })
-    # try:
-    user = User.objects.get(pk = request.user.id) 
-    listing = Listing.objects.get(id = request.POST['listing'])
-    watchlist = Watchlist(user=user, listing=listing)
-    watchlist.save()
-    # except Exception:
-    #     return render(request, "auctions/error.html", {
-    #         'error' : "Error occured, please try again."
-    #     })
-    #[FIXME:]
-    watchlist = Watchlist.objects.all().filter(user = request.user.id)
-    return render(request, "auctions/watchlist.html", {
-        'watchlist' : watchlist,
-    })
-    return render(request, '')
+    try:
+        user = User.objects.get(pk = request.user.id) 
+        listing = Listing.objects.get(id = request.POST['listing'])
+        try:
+            watchlist = Watchlist.objects.get(user=user, listing=listing)
+            if(watchlist):
+                watchlist.delete()
+        except Watchlist.DoesNotExist:
+            print("IN ERROR")
+            watchlist = Watchlist(user=user, listing=listing)
+            watchlist.save()
+    except Exception:
+        return render(request, "auctions/error.html", {
+            'error' : "Error occured, please try again."
+        })   
     return redirect(f"/{listing.id}")
+    

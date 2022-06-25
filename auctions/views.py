@@ -1,16 +1,15 @@
-import sqlite3
-from unicodedata import name
 from django.contrib.auth import authenticate, login, logout
 from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import redirect, render
 from django.urls import reverse
 from .forms import ListingForm
-from django.db.models.signals import post_save
+from django.views.decorators.http import require_http_methods
+from django.contrib.auth.decorators import login_required
 
 from .models import User, Listing, Bid, Category, Comment, Watchlist
 
-
+@require_http_methods(["GET"])
 def index(request):
     listings = Listing.objects.all()
     return render(request, "auctions/index.html", {
@@ -37,7 +36,7 @@ def login_view(request):
     else:
         return render(request, "auctions/login.html")
 
-
+@login_required
 def logout_view(request):
     logout(request)
     return HttpResponseRedirect(reverse("index"))
@@ -69,7 +68,7 @@ def register(request):
     else:
         return render(request, "auctions/register.html")
 
-
+@login_required
 def create(request):
     if request.method == "POST":
         f = ListingForm(request.POST)
@@ -94,7 +93,8 @@ def create(request):
         return render(request, "auctions/create.html", {
             "listing_form" : ListingForm()
         })
-
+    
+@require_http_methods(["GET"])
 def listing(request, id):
     listing = Listing.objects.get(pk = id)
     highestBid = None
@@ -103,11 +103,13 @@ def listing(request, id):
     on_watchlist = False
     bids = Bid.objects.all().filter(listing_id = id)
     nOfBids =  Bid.objects.all().filter(listing_id = id).count()
-    print(f"ANON {request.user}")
+    comments = Comment.objects.filter(listing_id = listing)
     if request.user.is_authenticated:
-        print(f"IN ANON {request.user}")
         on_watchlist = Watchlist.objects.filter(user = request.user, listing = listing)
     
+    
+
+
     if(bids):
         highestBid = bids.order_by('-amount')[0]
         if(highestBid.user_id == request.user):
@@ -121,6 +123,8 @@ def listing(request, id):
         'on_watchlist' : on_watchlist,
         'step' : step,
         'minimum' : float(listing.current_bid) + step,
+        'comments' : comments,
+
 
     })
 
@@ -135,9 +139,9 @@ def category(request, category):
         'category' : category
     })
 
+@login_required
+@require_http_methods(["POST"])
 def bid(request):
-    if request.method == "GET":
-        return redirect("/")
     user =  request.user
     bid_amount = request.POST['amount']
     listing = Listing.objects.get(id = request.POST['listing'])
@@ -158,12 +162,9 @@ def categories(request):
         'categories' : Category.objects.all(),
     })
 
+@login_required
+@require_http_methods(["POST"])
 def watchlist(request):
-    if request.method == "GET":
-        watchlist = Watchlist.objects.all().filter(user = request.user.id)
-        return render(request, "auctions/watchlist.html", {
-        'watchlist' : watchlist,
-    })
     try:
         user = User.objects.get(pk = request.user.id) 
         listing = Listing.objects.get(id = request.POST['listing'])
@@ -172,7 +173,6 @@ def watchlist(request):
             if(watchlist):
                 watchlist.delete()
         except Watchlist.DoesNotExist:
-            print("IN ERROR")
             watchlist = Watchlist(user=user, listing=listing)
             watchlist.save()
     except Exception:
@@ -180,4 +180,28 @@ def watchlist(request):
             'error' : "Error occured, please try again."
         })   
     return redirect(f"/{listing.id}")
-    
+
+@login_required
+@require_http_methods(["POST"])
+def comment(request):
+    user =  User.objects.get(pk = request.user.id)
+    comment = request.POST['comment']
+    listing = Listing.objects.get(id = request.POST['listing'])
+
+    try:
+        new_comment = Comment(comment=comment, user_id=user, listing_id=listing)
+        new_comment.save()
+    except Exception:
+        return render(request, "auctions/error.html", {
+            'error' : "Error occured, please try again."
+        })
+    return redirect(f"/{listing.id}")
+
+@login_required
+@require_http_methods(["POST"])
+def close(request):
+    user =  User.objects.get(pk = request.user.id)
+    listing = Listing.objects.get(id = request.POST['listing'])
+    winner = Bid.objects.all().filter(listing_id = listing).order_by('-amount')[0].user_id
+    #[FIXME:]
+    print(f"winner: {winner}")

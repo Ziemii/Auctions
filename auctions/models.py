@@ -3,8 +3,8 @@ from django.db import models
 from django.forms import ModelForm
 import uuid
 
-
-
+# Django database models used in application 
+# DB Engine: SQLite3
 
 class Listing(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)

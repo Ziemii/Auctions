@@ -16,6 +16,7 @@ class Listing(models.Model):
     category = models.ForeignKey('Category', on_delete=models.SET('Other'), related_name='categoryListings')
     winner = models.ForeignKey('User', on_delete=models.SET(None), null=True, blank=True)
     datetime = models.DateTimeField(auto_now_add=True)
+    isActive = models.BooleanField(default=True)
     def __str__(self):
         return f"{self.title}"
 

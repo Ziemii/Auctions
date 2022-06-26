@@ -49,7 +49,8 @@
             <h1>${{listing.current_bid}}</h1>
         </div>
     </div>
-     <div class="row align-items-start">
+    {%if listing.isActive %}
+    <div class="row align-items-start">
         <div class="col">
             {{nOfBids}} bid(s) so far. {%if winning %}Your bid is the current bid.{%endif%}
             
@@ -91,11 +92,18 @@
             <button class='btn btn-primary' form="bid_form" type="submit">Place Bid</button>
         </div>
     </div>
+    {%else%}
+    <div class="row align-items-start mt-2">
+        <div class="col">
+            <h4>Auction closed. Winner: {{listing.winner}}</h4>
+        </div>
+    </div>
+    {%endif%}
     <div class="row align-items-start my-2">
         <div class="col">
             <h3>Details:</h3>
             <ul>
-                <li>listed by: <a href={% url 'user' id=listing.user.id %}>{{listing.user}}</a></li>
+                <li>listed by: <a href={% url 'user' username=listing.user.username %}>{{listing.user}}</a></li>
                 <li>category: <a href={% url 'category' category=listing.category %}>{{listing.category}}</a></li>
             </ul>
         </div>
@@ -136,7 +144,7 @@
             {%endif%}
         </div>
     </div>
-    {%if user.id == listing.user.id %}
+    {%if user.id == listing.user.id and listing.isActive %}
     <form id="close_form" action="/close" method="post">
         {%csrf_token%}
         <input type="hidden" name="listing" value="{{listing.id}}">

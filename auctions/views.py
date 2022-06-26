@@ -11,7 +11,7 @@ from .models import User, Listing, Bid, Category, Comment, Watchlist
 
 @require_http_methods(["GET"])
 def index(request):
-    listings = Listing.objects.all()
+    listings = Listing.objects.filter(isActive = True)
     return render(request, "auctions/index.html", {
         'Listings' : listings
     })
@@ -128,11 +128,12 @@ def listing(request, id):
 
     })
 
-def user(request, id):
+def user(request, username):
     return render(request, "auctions/user.html", {
-        'Listings' : Listing.objects.all().filter(user = id),
-        'username' : User.objects.get(pk = id)
+        'Listings' : Listing.objects.filter(user = User.objects.get(username = username)),
+        'username' : User.objects.get(username = username)
     })
+
 def category(request, category):
     return render(request, "auctions/category.html", {
         'Listings' : Listing.objects.all().filter(category = Category.objects.get(category = category)),
@@ -163,23 +164,29 @@ def categories(request):
     })
 
 @login_required
-@require_http_methods(["POST"])
+@require_http_methods(["POST", "GET"])
 def watchlist(request):
-    try:
-        user = User.objects.get(pk = request.user.id) 
-        listing = Listing.objects.get(id = request.POST['listing'])
+    if request.method == "GET":
+        watchlist = Watchlist.objects.all().filter(user = request.user.id)
+        return render(request, "auctions/watchlist.html", {
+        'watchlist' : watchlist,
+    })
+    else:
         try:
-            watchlist = Watchlist.objects.get(user=user, listing=listing)
-            if(watchlist):
-                watchlist.delete()
-        except Watchlist.DoesNotExist:
-            watchlist = Watchlist(user=user, listing=listing)
-            watchlist.save()
-    except Exception:
-        return render(request, "auctions/error.html", {
-            'error' : "Error occured, please try again."
-        })   
-    return redirect(f"/{listing.id}")
+            user = User.objects.get(pk = request.user.id) 
+            listing = Listing.objects.get(id = request.POST['listing'])
+            try:
+                watchlist = Watchlist.objects.get(user=user, listing=listing)
+                if(watchlist):
+                    watchlist.delete()
+            except Watchlist.DoesNotExist:
+                watchlist = Watchlist(user=user, listing=listing)
+                watchlist.save()
+        except Exception:
+            return render(request, "auctions/error.html", {
+                'error' : "Error occured, please try again."
+            })   
+        return redirect(f"/{listing.id}")
 
 @login_required
 @require_http_methods(["POST"])
@@ -203,5 +210,12 @@ def close(request):
     user =  User.objects.get(pk = request.user.id)
     listing = Listing.objects.get(id = request.POST['listing'])
     winner = Bid.objects.all().filter(listing_id = listing).order_by('-amount')[0].user_id
-    #[FIXME:]
-    print(f"winner: {winner}")
+    try:
+        listing.isActive = False
+        listing.winner = User.objects.get(pk = winner.id)
+        listing.save()
+    except Exception:
+        return render(request, "auctions/error.html", {
+            'error' : "Error occured, please try again."
+        })
+    return redirect(f"/{listing.id}")

@@ -33,12 +33,12 @@ I also recommend using the python virtual environment.
 
 macOS/linux:
 ```
-$ cd Learnit
+$ cd Auctions
 $ python3 -m venv venv
 ```
 Windows:
 ```
-> cd Learnit
+> cd Auctions
 > py -3 -m venv venv
 ```
 
